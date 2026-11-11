@@ -3,22 +3,7 @@ from quiz import Quiz
 import os,sys
 import time
 
-quizzes = [
-    Quiz("영화 '기생충'의 감독은?",
-         ["봉준호", "박찬욱", "김지운", "나홍진"], 1),
 
-    Quiz("영화 '타이타닉'의 남자 주인공을 연기한 배우는?",
-         ["브래드 피트", "레오나르도 디카프리오", "톰 크루즈", "조니 뎁"], 2),
-
-    Quiz("영화 '어벤져스'에서 아이언맨 역을 맡은 배우는?",
-         ["크리스 에반스", "크리스 헴스워스", "로버트 다우니 주니어", "마크 러팔로"], 3),
-
-    Quiz("영화 '겨울왕국'에서 눈사람 캐릭터의 이름은?",
-         ["올라프", "스벤", "크리스토프", "한스"], 1),
-
-    Quiz("영화 '해리포터' 시리즈의 주인공 이름은?",
-         ["론 위즐리", "해리 포터", "드레이코 말포이", "네빌 롱바텀"], 2),
-]
 
 
 def pause():
@@ -89,6 +74,48 @@ def get_valid_input(prompt, min_val, max_val):
             print("\n게임을 종료합니다. 안녕히 가세요!")
             sys.exit(0)                           # ④ 종료 신호
 
+quizzes = [
+    Quiz("영화 '기생충'의 감독은?",
+         ["봉준호", "박찬욱", "김지운", "나홍진"], 1),
+
+    Quiz("영화 '타이타닉'의 남자 주인공을 연기한 배우는?",
+         ["브래드 피트", "레오나르도 디카프리오", "톰 크루즈", "조니 뎁"], 2),
+
+    Quiz("영화 '어벤져스'에서 아이언맨 역을 맡은 배우는?",
+         ["크리스 에반스", "크리스 헴스워스", "로버트 다우니 주니어", "마크 러팔로"], 3),
+
+    Quiz("영화 '겨울왕국'에서 눈사람 캐릭터의 이름은?",
+         ["올라프", "스벤", "크리스토프", "한스"], 1),
+
+    Quiz("영화 '해리포터' 시리즈의 주인공 이름은?",
+         ["론 위즐리", "해리 포터", "드레이코 말포이", "네빌 롱바텀"], 2),
+]
+
+
+
+
+
+def play_quiz(quizzes):
+    if not quizzes:
+        print("등록된 퀴즈가 없습니다. 먼저 퀴즈를 추가해주세요.")
+        pause()
+        return
+
+    total = len(quizzes)
+    score = 0
+    print(f"\n📝 퀴즈를 시작합니다! (총 {total}문제)\n")
+    for q in quizzes:
+        q.show()
+        answer = get_valid_input("정답 번호 : ", 1, 4)
+        if q.check(answer):
+            print("\n정답입니다!\n")
+            score += 1
+        else:
+            print("\n틀렸어요ㅠㅠ\n")
+
+    print(f"최종 점수: {score} / {total}")
+    pause()
+
 
 def main():
     show_logo()
@@ -97,25 +124,9 @@ def main():
         show_menu()
         choice = get_valid_input("메뉴 번호를 선택하세요: ", 1, 5)
 
-        if choice is None:   # 종료 신호면
-            break
-
         if choice == 1:
             clear_screen()
-            score = 0
-            for q in quizzes:
-                q.show()
-                answer = get_valid_input("정답 번호 : ", 1, 4)
-                if choice is None:   # 종료 신호면
-                    break
-                if q.check(answer):
-                    print("\n정답입니다!\n")
-                    score += 1
-                else:
-                    print("\n틀렸어요ㅠㅠ\n")
-
-            print(f"최종 점수: {score} / {len(quizzes)}")                        # ① 문제 보여주기
-            pause()
+            play_quiz(quizzes)
 
             
         elif choice == 2:
