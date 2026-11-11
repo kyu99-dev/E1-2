@@ -1,10 +1,32 @@
 from quiz import Quiz
 
-import os
+import os,sys
 import time
 
+quizzes = [
+    Quiz("영화 '기생충'의 감독은?",
+         ["봉준호", "박찬욱", "김지운", "나홍진"], 1),
+
+    Quiz("영화 '타이타닉'의 남자 주인공을 연기한 배우는?",
+         ["브래드 피트", "레오나르도 디카프리오", "톰 크루즈", "조니 뎁"], 2),
+
+    Quiz("영화 '어벤져스'에서 아이언맨 역을 맡은 배우는?",
+         ["크리스 에반스", "크리스 헴스워스", "로버트 다우니 주니어", "마크 러팔로"], 3),
+
+    Quiz("영화 '겨울왕국'에서 눈사람 캐릭터의 이름은?",
+         ["올라프", "스벤", "크리스토프", "한스"], 1),
+
+    Quiz("영화 '해리포터' 시리즈의 주인공 이름은?",
+         ["론 위즐리", "해리 포터", "드레이코 말포이", "네빌 롱바텀"], 2),
+]
 
 
+def pause():
+    try:
+        input("\n계속하려면 Enter를 누르세요...")
+    except (KeyboardInterrupt, EOFError):
+        print("\n게임을 종료합니다. 안녕히 가세요!")
+        sys.exit(0)
 
 def show_logo():
     print(r'''
@@ -43,6 +65,8 @@ def show_menu():
     print("4. 점수 확인")
     print("5. 종료")
 
+
+
 def get_valid_input(prompt, min_val, max_val):
     while True:                                    # ① 올바른 입력까지 반복
         try:
@@ -60,10 +84,10 @@ def get_valid_input(prompt, min_val, max_val):
 
         except ValueError:
             print("숫자만 입력하세요.")
-            input("\n계속하려면 Enter를 누르세요...")
+            pause()
         except (KeyboardInterrupt, EOFError):
             print("\n게임을 종료합니다. 안녕히 가세요!")
-            return None                            # ④ 종료 신호
+            sys.exit(0)                           # ④ 종료 신호
 
 
 def main():
@@ -78,13 +102,20 @@ def main():
 
         if choice == 1:
             clear_screen()
-            print("퀴즈 풀기 기능 (준비 중)")
-            q = Quiz("파이썬을 만든 사람은?", ["귀도", "리누스", "제임스", "데니스"], 1)
-            q.show()                              # ① 문제 보여주기
+            score = 0
+            for q in quizzes:
+                q.show()
+                answer = get_valid_input("정답 번호 : ", 1, 4)
+                if choice is None:   # 종료 신호면
+                    break
+                if q.check(answer):
+                    print("\n정답입니다!\n")
+                    score += 1
+                else:
+                    print("\n틀렸어요ㅠㅠ\n")
 
-            answer = get_valid_input("정답 번호를 입력하세요: ", 1, 5)  # ② 답 입력받기
-            if choice is None:   # 종료 신호면
-            break
+            print(f"최종 점수: {score} / {len(quizzes)}")                        # ① 문제 보여주기
+            pause()
 
             
         elif choice == 2:
@@ -104,8 +135,7 @@ def main():
             break
         else:
             print("1-5 사이 숫자를 입력해 주세요")
-            input("\n계속하려면 Enter를 누르세요...")
-
+            pause()
 
 
 
