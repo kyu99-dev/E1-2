@@ -93,7 +93,6 @@ default_quizzes = [
 
 
 def make_quiz():
-        # 질문 받기
     while True:                              # 제대로 입력될 때까지
         try:
             question = input("문제를 입력하세요: ").strip()
@@ -147,8 +146,30 @@ def save_quizzes(quizzes):
         json.dump(data, f, ensure_ascii=False, indent=2)  # ② 저장
     print("저장 완료!")
 
+def load_quizzes():
+    try:
+        with open("state.json", "r") as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []          # 파일 없거나 비어있으면 빈 리스트!
 
+    quizzes = []
+    for d in data:
+        quizzes.append(Quiz.from_dict(d))
 
+    return quizzes
+
+def show_quizzes():
+    quizzes = load_quizzes()
+
+    if not quizzes:
+        print("저장된 퀴즈가 없어요!")
+        return
+
+    for i, q in enumerate(quizzes, start=1):
+        print()
+        print(f"[{i}번 문제]")
+        q.show()
 
 def main():
     quizzes = default_quizzes 
@@ -189,9 +210,9 @@ def main():
             pause()
             
         elif choice == 3:
+            show_quizzes()
+            pause()
 
-             # TODO: 퀴즈 목록 안내 문구 출력
-            pass
         elif choice == 4:
 
             # TODO: 점수 확인 안내 문구 출력
