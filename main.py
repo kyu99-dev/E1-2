@@ -167,9 +167,7 @@ def show_quizzes():
         return
 
     for i, q in enumerate(quizzes, start=1):
-        print()
-        print(f"[{i}번 문제]")
-        q.show()
+        print(f"[{i}번 문제] {q.question}")
 
 def main():
     quizzes = default_quizzes 
