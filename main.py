@@ -4,6 +4,24 @@ import os,sys
 import time
 
 
+
+default_quizzes = [
+    Quiz("영화 '기생충'의 감독은?",
+         ["봉준호", "박찬욱", "김지운", "나홍진"], 1),
+
+    Quiz("영화 '타이타닉'의 남자 주인공을 연기한 배우는?",
+         ["브래드 피트", "레오나르도 디카프리오", "톰 크루즈", "조니 뎁"], 2),
+
+    Quiz("영화 '어벤져스'에서 아이언맨 역을 맡은 배우는?",
+         ["크리스 에반스", "크리스 헴스워스", "로버트 다우니 주니어", "마크 러팔로"], 3),
+
+    Quiz("영화 '겨울왕국'에서 눈사람 캐릭터의 이름은?",
+         ["올라프", "스벤", "크리스토프", "한스"], 1),
+
+    Quiz("영화 '해리포터' 시리즈의 주인공 이름은?",
+         ["론 위즐리", "해리 포터", "드레이코 말포이", "네빌 롱바텀"], 2),
+]
+
 def show_logo():
     print(r'''
   /$$$$$$  /$$   /$$ /$$$$$$ /$$$$$$$$
@@ -74,22 +92,6 @@ def get_valid_input(prompt, min_val, max_val):
         except (KeyboardInterrupt, EOFError):
             exit_game()                           # ④ 종료 신호
 
-default_quizzes = [
-    Quiz("영화 '기생충'의 감독은?",
-         ["봉준호", "박찬욱", "김지운", "나홍진"], 1),
-
-    Quiz("영화 '타이타닉'의 남자 주인공을 연기한 배우는?",
-         ["브래드 피트", "레오나르도 디카프리오", "톰 크루즈", "조니 뎁"], 2),
-
-    Quiz("영화 '어벤져스'에서 아이언맨 역을 맡은 배우는?",
-         ["크리스 에반스", "크리스 헴스워스", "로버트 다우니 주니어", "마크 러팔로"], 3),
-
-    Quiz("영화 '겨울왕국'에서 눈사람 캐릭터의 이름은?",
-         ["올라프", "스벤", "크리스토프", "한스"], 1),
-
-    Quiz("영화 '해리포터' 시리즈의 주인공 이름은?",
-         ["론 위즐리", "해리 포터", "드레이코 말포이", "네빌 롱바텀"], 2),
-]
 
 
 def make_quiz():
@@ -117,7 +119,32 @@ def make_quiz():
     
     return Quiz(question, choices, answer)
 
-def play_quiz(quizzes):
+def update_best_score(data, quizzes, correct):
+    total = len(quizzes)
+
+    # 1단계: 풀 문제가 없으면 바로 종료
+    if total == 0:
+        print("풀 수 있는 퀴즈가 없어요!")
+        return
+
+    # 2단계: 현재 정답률 (이제 안심하고 나눗셈!)
+    current_rate = correct / total
+
+    # 3단계: 기존 최고 기록과 비교
+    best = data["best_score"]
+
+    # 과거 기록이 없으면(처음) 무조건 갱신
+    if best["total"] == 0 or current_rate > best["correct"] / best["total"]:
+        data["best_score"] = {
+            "correct": correct,
+            "total": total
+        }
+        save_data(data)
+        print("🎉 최고 기록 갱신!")
+    else:
+        print("최고 기록은 갱신되지 않았어요.")
+
+def play_quiz(quizzes, data):
     if not quizzes:
         print("등록된 퀴즈가 없습니다. 먼저 퀴즈를 추가해주세요.")
         pause()
@@ -137,27 +164,33 @@ def play_quiz(quizzes):
             print("\n틀렸어요ㅠㅠ\n")
 
     print(f"최종 점수: {score} / {total}")
+    update_best_score(data, quizzes, score) 
     pause()
 
 
-def save_quizzes(quizzes):
-    data = [quiz.to_dict() for quiz in quizzes]   # ① 변환
+def load_data():
+    try:
+        with open("state.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {
+            "quizzes": [],
+            "best_score": {"correct": 0, "total": 0} 
+        }
+
+def save_data(data):
     with open("state.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)  # ② 저장
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+def save_quizzes(quizzes):
+    data = load_data()
+    data["quizzes"] = [quiz.to_dict() for quiz in quizzes]
+    save_data(data)
     print("저장 완료!")
 
 def load_quizzes():
-    try:
-        with open("state.json", "r") as f:
-            data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return []          # 파일 없거나 비어있으면 빈 리스트!
-
-    quizzes = []
-    for d in data:
-        quizzes.append(Quiz.from_dict(d))
-
-    return quizzes
+    data = load_data()
+    return [Quiz.from_dict(d) for d in data["quizzes"]]
 
 def show_quizzes():
     quizzes = load_quizzes()
@@ -168,9 +201,27 @@ def show_quizzes():
 
     for i, q in enumerate(quizzes, start=1):
         print(f"[{i}번 문제] {q.question}")
+        
+def show_best_score(data):
+    best = data["best_score"]
+
+    # 아직 퀴즈를 풀지 않은 경우
+    if best["total"] == 0:
+        print("아직 퀴즈를 풀지 않았어요!")
+        return
+
+    correct = best["correct"]
+    total = best["total"]
+    percent = int(correct / total * 100)
+
+    print(f"🏆 현재 최고 점수: {percent}점 ({total}문제 중 {correct}문제 정답)")
+
 
 def main():
-    quizzes = default_quizzes 
+    quizzes = load_quizzes()
+    data = load_data()
+    if not quizzes:
+        quizzes = default_quizzes
     show_logo()
     while True:
         clear_screen()
@@ -179,7 +230,7 @@ def main():
 
         if choice == 1:
             clear_screen()
-            play_quiz(quizzes)
+            play_quiz(quizzes, data)
 
         elif choice == 2:
             quiz = make_quiz()    
@@ -203,8 +254,8 @@ def main():
                         continue
 
                 except (KeyboardInterrupt, EOFError):
-                    print("\n입력이 중단되었어요. 추가를 취소할게요.")
-                    break
+                   print("\n입력이 중단되었어요. 추가를 취소할게요.")
+                   break
             pause()
             
         elif choice == 3:
@@ -212,13 +263,16 @@ def main():
             pause()
 
         elif choice == 4:
+            show_best_score(data)
+            pause()
 
-            # TODO: 점수 확인 안내 문구 출력
-            pass
         elif choice == 5:
             exit_game()
 
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        exit_game()
