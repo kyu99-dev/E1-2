@@ -2,6 +2,8 @@
 import json
 from game.quiz import Quiz
 from game.util import show_logo, show_menu, clear_screen, exit_game, pause, get_valid_input
+import random
+
 
 
 default_quizzes = [
@@ -10,6 +12,7 @@ default_quizzes = [
     Quiz("영화 '어벤져스'에서 아이언맨 역을 맡은 배우는?", ["크리스 에반스", "크리스 헴스워스", "로버트 다우니 주니어", "마크 러팔로"], 3),
     Quiz("영화 '겨울왕국'에서 눈사람 캐릭터의 이름은?", ["올라프", "스벤", "크리스토프", "한스"], 1),
     Quiz("영화 '해리포터' 시리즈의 주인공 이름은?", ["론 위즐리", "해리 포터", "드레이코 말포이", "네빌 롱바텀"], 2),
+    Quiz("박찬욱 감독의 영화 《올드보이》에서 주인공 오대수가 15년 동안 감금되어 매일 먹어야 했던 주된 음식은 무엇인가요?",["샌드위치","컵라면","주먹밥","군만두"],4),
 ]
 
 
@@ -20,7 +23,6 @@ class QuizGame:
         if not self.quizzes:                  # 저장된 퀴즈가 없으면
             self.quizzes = default_quizzes    # 기본 퀴즈로 채우기
             print("기본퀴즈로 시작합니다.")
-
     # ---------- 파일 저장/불러오기 ----------
 
     def load_data(self):
@@ -85,11 +87,13 @@ class QuizGame:
             pause()
             return
 
-        total = len(self.quizzes)                 
+        total = len(self.quizzes)
+        quizzes = self.quizzes[:]     # 복사본 만들기
+        random.shuffle(quizzes)       # 복사본만 섞기                
         score = 0
         print(f"\n📝 퀴즈를 시작합니다! (총 {total}문제)\n")
         print("--------------------------------------")
-        for q in self.quizzes:                    
+        for q in quizzes:                    
             q.show()
             answer = get_valid_input("정답 번호 : ", 1, 4)
             if q.check(answer):
