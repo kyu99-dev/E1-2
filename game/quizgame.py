@@ -14,7 +14,7 @@ default_quizzes = [
     Quiz("영화 '해리포터' 시리즈의 주인공 이름은?", ["론 위즐리", "해리 포터", "드레이코 말포이", "네빌 롱바텀"], 2,"동그란 안경과 번개 모양 흉터가 상징인 인물입니다."),
     Quiz("박찬욱 감독의 영화 《올드보이》에서 주인공 오대수가 15년 동안 감금되어 매일 먹어야 했던 주된 음식은 무엇인가요?",["샌드위치","컵라면","주먹밥","군만두"],4,"중국집에서 자주 볼 수 있는 튀긴 만두 음식입니다."),
 ]
-default_quizzes = []
+
 
 class QuizGame:
     def __init__(self):
@@ -168,3 +168,41 @@ class QuizGame:
 
         for i, q in enumerate(self.quizzes, start=1):
             print(f"[{i}번 문제] {q.question}")
+
+    # ---------- 퀴즈 삭제 ----------
+    def delete_quiz(self):
+        if not self.quizzes:
+            print("삭제할 퀴즈가 없습니다.")
+            return
+
+        if len(self.quizzes) == 1:
+            print("최소 1개의 퀴즈는 남겨두어야 합니다.")
+            return
+
+        print("\n=== 퀴즈 삭제 ===")
+
+        for i, quiz in enumerate(self.quizzes, start=1):
+            print(f"{i}. {quiz.question}")
+
+        choice = get_valid_input(
+            "삭제할 퀴즈 번호를 입력하세요 (0: 취소): ",
+            0,
+            len(self.quizzes)
+        )
+
+        if choice == 0:
+            print("삭제를 취소했습니다.")
+            return
+
+        deleted_quiz = self.quizzes[choice - 1]
+
+        confirm = input(f"'{deleted_quiz.question}' 퀴즈를 삭제할까요? (y/n): ").strip().lower()
+
+        if confirm != "y":
+            print("삭제를 취소했습니다.")
+            return
+
+        self.quizzes.pop(choice - 1)
+        self.save_quizzes()
+
+        print("퀴즈가 삭제되었습니다.")

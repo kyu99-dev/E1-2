@@ -12,7 +12,7 @@ def main():
     while True:
         clear_screen()
         show_menu()
-        choice = get_valid_input("메뉴 번호를 선택하세요: ", 1, 5)
+        choice = get_valid_input("메뉴 번호를 선택하세요: ", 1, 6)
         
         if choice == 1:
             clear_screen()
@@ -57,6 +57,10 @@ def main():
             pause()
 
         elif choice == 5:
+            game.delete_quiz()
+            pause()
+            
+        elif choice == 6:
             exit_game()
     
 
