@@ -3,8 +3,10 @@ import json
 from game.quiz import Quiz
 from game.util import show_logo, show_menu, clear_screen, exit_game, pause, get_valid_input
 import random
+from datetime import datetime
 
-
+HISTORY_FILE = "history.json"
+STATE_FILE = "state.json"
 
 default_quizzes = [
     Quiz("영화 '기생충'의 감독은?", ["봉준호", "박찬욱", "김지운", "나홍진"], 1,"이 감독은 영화 '살인의 추억', '괴물', '설국열차'도 연출했습니다."),
@@ -20,14 +22,27 @@ class QuizGame:
     def __init__(self):
         self.data = self.load_data()
         self.quizzes = [Quiz.from_dict(d) for d in self.data.get("quizzes", [])]
+        self.score_history = self.load_history()
         if not self.quizzes:                  # 저장된 퀴즈가 없으면
             self.quizzes = default_quizzes    # 기본 퀴즈로 채우기
             print("기본퀴즈로 시작합니다.")
     # ---------- 파일 저장/불러오기 ----------
+    def load_history(self):
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return []
+        except json.JSONDecodeError:
+            return []
+        
+    def save_history(self):
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(self.score_history, f, ensure_ascii=False, indent=4)
 
     def load_data(self):
         try:
-            with open("state.json", "r", encoding="utf-8") as f:
+            with open(STATE_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         except FileNotFoundError:
             print("저장된 데이터가 없어 새로 시작합니다.")
@@ -43,7 +58,7 @@ class QuizGame:
     def save_data(self):
         try:
             #raise OSError("테스트용 강제 오류")
-            with open("state.json", "w", encoding="utf-8") as f:
+            with open(STATE_FILE, "w", encoding="utf-8") as f:
                 json.dump(self.data, f, ensure_ascii=False, indent=2)
         except OSError as e:                       # 파일 쓰기 실패
             print(f"저장 중 오류가 발생했어요: {e}")
@@ -57,6 +72,15 @@ class QuizGame:
         else:
             print("저장에 실패했어요.")
 
+    def add_score_history(self, correct_count, total_count):
+        record = {
+            "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "question_count": total_count,
+            "score": correct_count
+        }
+
+        self.score_history.append(record)
+        self.save_history()
 
     # ---------- 퀴즈 만들기 ----------
     def make_quiz(self):
@@ -98,7 +122,7 @@ class QuizGame:
         quizzes = random.sample(self.quizzes, count)
 
         score = 0
-        print(f"\n📝 퀴즈를 시작합니다! (총 {total}문제)\n")
+        print(f"\n📝 퀴즈를 시작합니다! (총 {count}문제)\n")
         print("--------------------------------------")
         for q in quizzes:                    
             q.show()
@@ -123,7 +147,9 @@ class QuizGame:
                 print("\n틀렸어요ㅠㅠ\n")
 
         print(f"최종 점수: {score} / {count}")
-        self.update_best_score(score, count)            
+        self.add_score_history(score, count)
+        self.update_best_score(score, count)  
+                  
         pause()
 
     # ---------- 점수 ----------
@@ -147,6 +173,24 @@ class QuizGame:
                 print("기록 저장에 실패했어요.")
         else:
             print("최고 기록은 갱신되지 않았어요.")
+
+    def show_score_history(self):
+        if not self.score_history:
+            print("저장된 점수 기록이 없습니다.")
+            return
+
+        print("\n=== 점수 기록 히스토리 ===")
+
+        for i, record in enumerate(self.score_history, start=1):
+            datetime_value = record.get("datetime", "날짜 없음")
+            question_count = record.get("question_count", 0)
+            score = record.get("score", 0)
+
+            print(
+                f"{i}. 날짜/시간: {datetime_value} | "
+                f"푼 문제 수: {question_count} | "
+                f"점수: {score}/{question_count}"
+            )
 
     def show_best_score(self):                      
         best = self.data["best_score"]   
