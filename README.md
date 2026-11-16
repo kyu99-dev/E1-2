@@ -156,3 +156,35 @@ Fast-forward
 
 `git pull` 실행 결과 변경사항이 정상 반영되었다.  
 이를 통해 clone한 저장소에서 push한 README.md 변경사항이 기존 로컬 작업 디렉터리에 성공적으로 적용되었음을 확인하였다.
+## 🛠️ Git 기초 명령어 사용 증빙
+
+프로젝트 진행 과정에서 Git 기초 명령어 7종을 각각 한 번 이상 사용하였다.
+
+| 명령어 | 사용 내용 | 증빙 |
+|---|---|---|
+| `git init` | 프로젝트 폴더를 Git 저장소로 초기화 | 초기 커밋 및 Git 저장소 생성 |
+| `git add` | 변경 파일을 스테이징 영역에 추가 | 여러 커밋 생성 과정에서 사용 |
+| `git commit` | 변경 사항을 커밋으로 저장 | `git log --oneline --graph` 결과 |
+| `git push` | 로컬 커밋을 GitHub 원격 저장소에 업로드 | `origin/main`이 `HEAD -> main`과 동일 |
+| `git pull` | 원격 저장소 변경 사항을 로컬에 반영 | Fast-forward 실행 결과 기록 |
+| `git checkout` | 브랜치 이동 및 작업 브랜치 사용 | `feature/quiz-play` 브랜치에서 `main` 브랜치로 이동한 기록 |
+| `git clone` | 원격 저장소를 별도 폴더에 복제 | clone 실행 결과 기록 |
+
+### git checkout 실행 결과
+---
+```bash
+git branch
+```
+```text
+* feature/quiz-play
+  main
+```
+---
+```bash
+git checkout main
+```
+
+```text
+Switched to branch 'main'
+Your branch is up to date with 'origin/main'.
+```
