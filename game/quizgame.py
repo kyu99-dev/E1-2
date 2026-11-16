@@ -16,58 +16,67 @@ default_quizzes = [
 class QuizGame:
     def __init__(self):
         self.data = self.load_data()
-        self.quizzes = self.load_quizzes()
+        self.quizzes = [Quiz.from_dict(d) for d in self.data.get("quizzes", [])]
         if not self.quizzes:                  # 저장된 퀴즈가 없으면
             self.quizzes = default_quizzes    # 기본 퀴즈로 채우기
+            print("기본퀴즈로 시작합니다.")
 
     # ---------- 파일 저장/불러오기 ----------
+
     def load_data(self):
         try:
             with open("state.json", "r", encoding="utf-8") as f:
                 return json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            return {
-                "quizzes": [],
-                "best_score": {"correct": 0, "total": 0}
-            }
+        except FileNotFoundError:
+            print("저장된 데이터가 없어 새로 시작합니다.")
+        except json.JSONDecodeError:
+            print("데이터가 손상되어 새로 시작합니다.")
 
-    def save_data(self):                           
-        with open("state.json", "w", encoding="utf-8") as f:
-            json.dump(self.data, f, ensure_ascii=False, indent=2)
+        # except를 빠져나오면 여기로 옴
+        return {
+            "quizzes": [],
+            "best_score": {"correct": 0, "total": 0}
+        }
 
-    def save_quizzes(self):                        
+    def save_data(self):
+        try:
+            #raise OSError("테스트용 강제 오류")
+            with open("state.json", "w", encoding="utf-8") as f:
+                json.dump(self.data, f, ensure_ascii=False, indent=2)
+        except OSError as e:                       # 파일 쓰기 실패
+            print(f"저장 중 오류가 발생했어요: {e}")
+            return False                           # 실패 알림
+        return True                                # 성공 알림
+
+    def save_quizzes(self):
         self.data["quizzes"] = [q.to_dict() for q in self.quizzes]
-        self.save_data()                              
-        print("저장 완료!")
+        if self.save_data():               # 성공했을 때만
+            print("저장 완료!")
+        else:
+            print("저장에 실패했어요.")
 
-    def load_quizzes(self):
-        data = self.load_data()
-        return [Quiz.from_dict(d) for d in data["quizzes"]]
 
     # ---------- 퀴즈 만들기 ----------
     def make_quiz(self):
-        while True:
-            try:
-                question = input("문제를 입력하세요: ").strip()
-                if not question:
-                    print("문제를 입력해 주세요.")
-                    continue
-                break
-            except (KeyboardInterrupt, EOFError):
-                exit_game()
-        choices = []
-        while len(choices) < 4:
-            try:
-                num = len(choices) + 1
-                choice = input(f"{num}번 선택지: ").strip()
-                if not choice:
-                    print("선택지를 입력해 주세요.")
-                    continue
-                choices.append(choice)
-            except (KeyboardInterrupt, EOFError):
-                exit_game()
-        answer = get_valid_input("정답 번호(1~4): ", 1, 4)
-        return Quiz(question, choices, answer)
+        try:
+            while True:
+                        question = input("문제를 입력하세요: ").strip()
+                        if not question:
+                            print("문제를 입력해 주세요.")
+                            continue
+                        break
+            choices = []
+            while len(choices) < 4:
+                        num = len(choices) + 1
+                        choice = input(f"{num}번 선택지: ").strip()
+                        if not choice:
+                            print("선택지를 입력해 주세요.")
+                            continue
+                        choices.append(choice)
+            answer = get_valid_input("정답 번호(1~4): ", 1, 4)
+            return Quiz(question, choices, answer)
+        except (KeyboardInterrupt, EOFError):
+                return None
 
     # ---------- 퀴즈 풀기 ----------
     def play_quiz(self):                            
@@ -108,8 +117,10 @@ class QuizGame:
                 "correct": correct,
                 "total": total
             }
-            self.save_data()
-            print("🎉 최고 기록 갱신!")
+            if self.save_data():
+                print("🎉 최고 기록 갱신!")
+            else:
+                print("기록 저장에 실패했어요.")
         else:
             print("최고 기록은 갱신되지 않았어요.")
 

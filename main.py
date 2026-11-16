@@ -3,10 +3,12 @@ from game.util import show_logo, show_menu, clear_screen, exit_game, pause, get_
 
 
 def main():
-    game = QuizGame()          # 객체 생성 (data, quizzes 자동 준비)
+    
     show_logo()
+    game = QuizGame()          # 객체 생성 (data, quizzes 자동 준비)
     pause()
-
+    
+    
     while True:
         clear_screen()
         show_menu()
@@ -18,26 +20,31 @@ def main():
 
         elif choice == 2:
             quiz = game.make_quiz()
+            if quiz is None:
+                print("\n퀴즈 추가를 취소했어요.")
+                pause()
+                continue
             print("\n--- 만들어진 퀴즈 ---")
             quiz.show()
             print("정답 : ", quiz.answer)
+
             while True:
                 try:
                     confirm = input("\n이 퀴즈를 추가할까요? (y/n): ").strip().lower()
 
                     if confirm == "y":
                         game.quizzes.append(quiz)
-                        game.save_quizzes()
-                        print("추가되었어요!")
+                        if game.save_quizzes():
+                            print("추가되었어요!")
                         break
                     elif confirm == "n":
-                        print("추가를 취소했어요.")
+                        print("퀴즈 추가를 취소했어요.")
                         break
                     else:
                         print("y 또는 n만 입력해주세요.")
                         continue
                 except (KeyboardInterrupt, EOFError):
-                    print("\n입력이 중단되었어요. 추가를 취소할게요.")
+                    print("\n퀴즈 추가를 취소했어요.")
                     break
             pause()
 

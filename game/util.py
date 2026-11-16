@@ -69,6 +69,4 @@ def get_valid_input(prompt, min_val, max_val):
         except ValueError:
             print("숫자만 입력하세요.")
             continue
-        except (KeyboardInterrupt, EOFError):
-            exit_game()                           # ④ 종료 신호
 
