@@ -23,7 +23,7 @@
 ```bash
 python3 main.py
 ```
-> > Python 3.10 이상 환경에서 실행 가능하며, 개발은 Python 3.14.4 환경에서 진행했습니다.
+> Python 3.10 이상 환경에서 실행 가능하며, 개발은 Python 3.14.4 환경에서 진행했습니다.
 
 ## ✨ 기능 목록
 - 퀴즈 풀기 (정답 확인 및 점수 계산)
@@ -51,8 +51,6 @@ python3 main.py
 - **역할**: 최고 점수와 퀴즈 목록을 저장/불러오기
 - **인코딩**: UTF-8
 - **스키마**:
-- **스키마**:
-
 ```text
 {
   "quizzes": [
@@ -103,11 +101,22 @@ git log --oneline --graph
 ![git_log](docs/screenshots/git-log.png)
 
 
+## 📍Git 저장소 복제 및 pull 실습
+
+퀴즈 게임 개발 완료 후, `clone`과 `pull` 명령어를 실습하였다.
+
+### 1. 저장소 복제
+
+원격 저장소를 별도의 로컬 디렉터리에 복제하였다.
+
+```bash
+git clone git@github.com:kyu99-dev/E1-2.git
+```
+
+실행 결과:
 
 ```text
-git clone git@github.com:kyu99-dev/E1-2.git
-Cloning into 'E1-2'...
-Enter passphrase for key '/home/kyu/.ssh/id_ed25519': 
+Cloning into 'E1-2'... 
 remote: Enumerating objects: 59, done.
 remote: Counting objects: 100% (59/59), done.
 remote: Compressing objects: 100% (41/41), done.
@@ -115,3 +124,35 @@ remote: Total 59 (delta 24), reused 48 (delta 16), pack-reused 0 (from 0)
 Receiving objects: 100% (59/59), 461.54 KiB | 816.00 KiB/s, done.
 Resolving deltas: 100% (24/24), done.
 ```
+
+### 2. 복제된 저장소에서 변경 후 push
+
+복제된 저장소에서 README.md에 git clone 로그를 추가한 뒤 commit 후 push하였다.
+
+```bash
+git add .
+git commit -m "docs: clone 실습 문구 추가"
+git push
+```
+
+### 3. 기존 로컬 작업 디렉터리에서 pull
+
+기존 로컬 작업 디렉터리에서 원격 저장소의 변경사항을 가져왔다.
+
+```bash
+git pull
+```
+
+실행 결과:
+
+```text
+Updating 7baed6a..e3afa59
+Fast-forward
+ README.md | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+```
+
+### 4. 실습 결과
+
+`git pull` 실행 결과 변경사항이 정상 반영되었다.  
+이를 통해 clone한 저장소에서 push한 README.md 변경사항이 기존 로컬 작업 디렉터리에 성공적으로 적용되었음을 확인하였다.
