@@ -1,8 +1,9 @@
 class Quiz:
-    def __init__(self, question, choices, answer):
+    def __init__(self, question, choices, answer, hint):
         self.question = question
         self.choices = choices
         self.answer = answer
+        self.hint = hint
     
     #퀴즈 출력
     def show(self):
@@ -20,8 +21,9 @@ class Quiz:
             "question": self.question,
             "choices": self.choices,
             "answer": self.answer,
+            "hint" : self.hint,
         }
     #퀴즈 불러오기
     @staticmethod
     def from_dict(data):
-        return Quiz(data["question"], data["choices"], data["answer"])
+        return Quiz(data["question"], data["choices"], data["answer"], data["hint"])

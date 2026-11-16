@@ -27,7 +27,7 @@ def main():
             print("\n--- 만들어진 퀴즈 ---")
             quiz.show()
             print("정답 : ", quiz.answer)
-
+            print("힌트 : ", quiz.hint)
             while True:
                 try:
                     confirm = input("\n이 퀴즈를 추가할까요? (y/n): ").strip().lower()
