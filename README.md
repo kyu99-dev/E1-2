@@ -101,3 +101,17 @@ python3 main.py
 git log --oneline --graph
 ```
 ![git_log](docs/screenshots/git-log.png)
+
+
+
+```text
+git clone git@github.com:kyu99-dev/E1-2.git
+Cloning into 'E1-2'...
+Enter passphrase for key '/home/kyu/.ssh/id_ed25519': 
+remote: Enumerating objects: 59, done.
+remote: Counting objects: 100% (59/59), done.
+remote: Compressing objects: 100% (41/41), done.
+remote: Total 59 (delta 24), reused 48 (delta 16), pack-reused 0 (from 0)
+Receiving objects: 100% (59/59), 461.54 KiB | 816.00 KiB/s, done.
+Resolving deltas: 100% (24/24), done.
+```
