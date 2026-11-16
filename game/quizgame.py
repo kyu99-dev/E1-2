@@ -87,9 +87,10 @@ class QuizGame:
             pause()
             return
 
-        total = len(self.quizzes)
-        quizzes = self.quizzes[:]     # 복사본 만들기
-        random.shuffle(quizzes)       # 복사본만 섞기                
+        total = len(self.quizzes)   # 전체 문제 수
+        count = get_valid_input(f"몇 문제를 풀까요? (1~{total}) : ", 1, total)
+        quizzes = random.sample(self.quizzes, count)
+
         score = 0
         print(f"\n📝 퀴즈를 시작합니다! (총 {total}문제)\n")
         print("--------------------------------------")
@@ -102,24 +103,24 @@ class QuizGame:
             else:
                 print("\n틀렸어요ㅠㅠ\n")
 
-        print(f"최종 점수: {score} / {total}")
-        self.update_best_score(score)            
+        print(f"최종 점수: {score} / {count}")
+        self.update_best_score(score, count)            
         pause()
 
     # ---------- 점수 ----------
-    def update_best_score(self, correct):            
-        total = len(self.quizzes)                  
-        if total == 0:
+    def update_best_score(self, correct, count):                              
+        if count == 0:
             print("풀 수 있는 퀴즈가 없어요!")
             return
 
-        current_rate = correct / total
+        current_rate = correct / count
         best = self.data["best_score"] 
-
-        if best["total"] == 0 or current_rate > best["correct"] / best["total"]:
+        best_rate = best["correct"] / best["total"] if best["total"] > 0 else -1
+        
+        if (best["total"] == 0 or current_rate > best_rate or (current_rate == best_rate and count > best["total"])):
             self.data["best_score"] = {
                 "correct": correct,
-                "total": total
+                "total": count
             }
             if self.save_data():
                 print("🎉 최고 기록 갱신!")
