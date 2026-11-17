@@ -1,12 +1,17 @@
-
+import random
+import shutil
+import os
 import json
 from game.quiz import Quiz
 from game.util import show_logo, show_menu, clear_screen, exit_game, pause, get_valid_input
-import random
 from datetime import datetime
+
 
 HISTORY_FILE = "history.json"
 STATE_FILE = "state.json"
+
+STATE_BACKUP_FILE = STATE_FILE + ".bak"
+HISTORY_BACKUP_FILE = HISTORY_FILE + ".bak"
 
 default_quizzes = [
     Quiz("영화 '기생충'의 감독은?", ["봉준호", "박찬욱", "김지운", "나홍진"], 1,"이 감독은 영화 '살인의 추억', '괴물', '설국열차'도 연출했습니다."),
@@ -27,50 +32,150 @@ class QuizGame:
             self.quizzes = default_quizzes    # 기본 퀴즈로 채우기
             print("기본퀴즈로 시작합니다.")
     # ---------- 파일 저장/불러오기 ----------
+    def is_valid_json_file(self, file_path):
+        #파일이 정상적인 JSON 형식인지 확인
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                json.load(f)
+            return True
+        except (FileNotFoundError, json.JSONDecodeError):
+            return False
+
+
+    def backup_file(self, file_path, backup_path):
+        """저장 전 기존 파일이 정상 JSON이면 백업 생성"""
+        if os.path.exists(file_path) and self.is_valid_json_file(file_path):
+            shutil.copy2(file_path, backup_path)
+
+
+    def restore_from_backup(self, backup_path, target_path):
+        """백업 파일에서 데이터를 복구"""
+        try:
+            with open(backup_path, "r", encoding="utf-8") as f:
+                restored_data = json.load(f)
+
+            with open(target_path, "w", encoding="utf-8") as f:
+                json.dump(restored_data, f, ensure_ascii=False, indent=2)
+
+            return restored_data
+
+        except FileNotFoundError:
+            print("백업 파일이 없어 복구할 수 없습니다.")
+        except json.JSONDecodeError:
+            print("백업 파일도 손상되어 복구할 수 없습니다.")
+        except OSError as e:
+            print(f"백업 복구 중 오류가 발생했어요: {e}")
+
+        return None
+        
     def load_history(self):
         try:
             with open(HISTORY_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
+
         except FileNotFoundError:
             return []
+
         except json.JSONDecodeError:
+            print("히스토리 파일이 손상되어 백업에서 복구를 시도합니다.")
+
+            restored_data = self.restore_from_backup(
+                HISTORY_BACKUP_FILE,
+                HISTORY_FILE
+            )
+
+            if isinstance(restored_data, list):
+                print("히스토리 백업 복구에 성공했습니다.")
+                return restored_data
+
+            print("히스토리를 새로 시작합니다.")
             return []
         
     def save_history(self):
-        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
-            json.dump(self.score_history, f, ensure_ascii=False, indent=4)
+        try:
+            self.backup_file(HISTORY_FILE, HISTORY_BACKUP_FILE)
+
+            with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+                json.dump(self.score_history, f, ensure_ascii=False, indent=4)
+
+            return True
+
+        except OSError as e:
+            print(f"history 저장 중 오류가 발생했어요: {e}")
+            return False
 
     def load_data(self):
         try:
             with open(STATE_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+
+                if not isinstance(data, dict):
+                    data = {}
+
+                if "quizzes" not in data:
+                    data["quizzes"] = []
+
+                if "best_score" not in data or not isinstance(data["best_score"], dict):
+                    data["best_score"] = {"correct": 0, "total": 0}
+
+                if "correct" not in data["best_score"]:
+                    data["best_score"]["correct"] = 0
+
+                if "total" not in data["best_score"]:
+                    data["best_score"]["total"] = 0
+
+                return data
+
         except FileNotFoundError:
             print("저장된 데이터가 없어 새로 시작합니다.")
         except json.JSONDecodeError:
-            print("데이터가 손상되어 새로 시작합니다.")
+            print("데이터가 손상되어 백업에서 복구를 시도합니다.")
+            restored_data = self.restore_from_backup(
+                STATE_BACKUP_FILE,
+                STATE_FILE
+            )
+            if isinstance(restored_data, dict):
+                if "quizzes" not in restored_data:
+                    restored_data["quizzes"] = []
 
-        # except를 빠져나오면 여기로 옴
+                if "best_score" not in restored_data or not isinstance(restored_data["best_score"], dict):
+                    restored_data["best_score"] = {"correct": 0, "total": 0}
+
+                if "correct" not in restored_data["best_score"]:
+                    restored_data["best_score"]["correct"] = 0
+
+                if "total" not in restored_data["best_score"]:
+                    restored_data["best_score"]["total"] = 0
+
+                print("백업 파일을 사용해 데이터를 복구했습니다.")
+                return restored_data
+
+            print("백업 복구에 실패하여 새로 시작합니다.")
+
         return {
             "quizzes": [],
             "best_score": {"correct": 0, "total": 0}
         }
 
+# ... rest of code ...
+
     def save_data(self):
         try:
-            #raise OSError("테스트용 강제 오류")
+            # 저장 전 기존 정상 데이터를 백업
+            self.backup_file(STATE_FILE, STATE_BACKUP_FILE)
+
             with open(STATE_FILE, "w", encoding="utf-8") as f:
                 json.dump(self.data, f, ensure_ascii=False, indent=2)
-        except OSError as e:                       # 파일 쓰기 실패
+
+        except OSError as e:
             print(f"저장 중 오류가 발생했어요: {e}")
-            return False                           # 실패 알림
-        return True                                # 성공 알림
+            return False
+
+        return True                       # 성공 알림
 
     def save_quizzes(self):
         self.data["quizzes"] = [q.to_dict() for q in self.quizzes]
-        if self.save_data():               # 성공했을 때만
-            print("저장 완료!")
-        else:
-            print("저장에 실패했어요.")
+        return self.save_data()
 
     def add_score_history(self, correct_count, total_count):
         record = {
@@ -247,6 +352,8 @@ class QuizGame:
             return
 
         self.quizzes.pop(choice - 1)
-        self.save_quizzes()
 
-        print("퀴즈가 삭제되었습니다.")
+        if self.save_quizzes():
+            print("퀴즈가 삭제되었습니다.")
+        else:
+            print("저장에 실패했어요. 삭제 결과가 파일에 반영되지 않았을 수 있습니다.")

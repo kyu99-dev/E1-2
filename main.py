@@ -36,6 +36,9 @@ def main():
                         game.quizzes.append(quiz)
                         if game.save_quizzes():
                             print("추가되었어요!")
+                        else:
+                            game.quizzes.pop()
+                            print("저장에 실패해서 추가를 완료하지 못했어요.")
                         break
                     elif confirm == "n":
                         print("퀴즈 추가를 취소했어요.")
@@ -72,4 +75,7 @@ if __name__ == '__main__':
     try:
         main()
     except (KeyboardInterrupt, EOFError):
+        exit_game()
+    except Exception as e:
+        print(f"오류가 발생했습니다: {e}")
         exit_game()

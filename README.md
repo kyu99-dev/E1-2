@@ -283,6 +283,37 @@ class Quiz:
 
 `https://github.com/kyu99-dev/E1-2`
 
+## 🧾 Git 커밋 기록 텍스트 증빙
+
+아래는 `git log --oneline` 명령어로 확인한 커밋 기록입니다.  
+프로젝트 진행 과정에서 10개 이상의 의미 있는 커밋을 남겼습니다.
+
+```text
+git log --oneline
+95217d2 (HEAD -> main, origin/main, origin/HEAD) chore: 누락된 파일 재업로드
+ba71207 feat : README 작성& 보너스과제
+83e84ca feat: 퀴즈삭제기능추가
+48ac412 feat: 힌트기능추가
+2e1660f feat: 문제 수 선택 기능추가
+876f642 feat: 랜덤 출제 기능
+7b79bc2 docs: git 명령어 사용 증빙 추가
+a275fff docs: README 정리
+e3afa59 docs: clone 실습 문구 추가
+7baed6a docs: README 작성
+7c8a634 feat: 파일 없음·손상 시 예외 처리 추가
+8200a91 QuizGame 클래스 구조로 리팩터링
+6592fba feat: 최고 저수 저장,갱신,출력 기능 추가
+ba323c6 style: 퀴즈 목록은 문제만 출력하도록 변경
+afc4535 feat:퀴즈 목록 기능구현
+794382a feat:퀴즈 추가 기능
+8456046 (feature/quiz-play) feat: 퀴즈 풀기 기능 구현
+4227ca2 feat: 기본 퀴즈 데이터 작성
+4631c98 feat: Quiz 클래스 추가
+28a6334 feat: 메뉴 기능 구현
+5d1495f Init: 프로젝트 초기 설정 및 README, .gitignore, main.py 추가
+835b5ac Initial commit
+```
+
 
 ## 🧾 Git 커밋 기록
 
@@ -380,3 +411,63 @@ git checkout main
 Switched to branch 'main'
 Your branch is up to date with 'origin/main'.
 ```
+
+
+## 🔄 프로그램 종료 시 데이터 동기화 방식
+
+이 프로젝트는 퀴즈 추가, 퀴즈 삭제, 점수 기록 변경이 발생하면 즉시 JSON 파일에 데이터를 저장하도록 구현했습니다.
+
+사용자가 메뉴에서 종료를 선택하거나 `Ctrl + C`, 입력 종료와 같은 예외 상황이 발생하더라도, 주요 데이터는 변경 시점마다 이미 파일에 저장되도록 하여 데이터 손실 가능성을 줄였습니다.
+
+동기화 대상 파일은 다음과 같습니다.
+
+| 파일 | 저장 내용 |
+|---|---|
+| `state.json` | 퀴즈 목록, 최고 점수 |
+| `history.json` | 날짜/시간, 푼 문제 수, 점수 기록 |
+
+정상 종료 또는 예외 종료가 발생하더라도, 퀴즈 목록과 점수 기록은 변경 시점마다 즉시 저장되므로 데이터 손실을 줄일 수 있습니다.
+
+또한 `KeyboardInterrupt`, `EOFError` 발생 시에는 예외를 처리하여 사용자에게 종료 메시지를 출력하고 프로그램을 안전하게 종료합니다.
+
+## 🧩 Quiz 클래스 설계 이유
+
+이 프로젝트는 퀴즈 한 문제를 `Quiz` 클래스로 추상화했습니다. 퀴즈는 문제, 선택지, 정답처럼 서로 관련된 데이터를 함께 가지므로, 이를 하나의 객체로 묶어 관리하면 데이터 구조가 명확해집니다.
+
+또한 정답 확인, 문제 출력과 같은 기능을 클래스 내부 메서드로 구현할 수 있어 퀴즈 관련 로직을 한곳에 모을 수 있습니다. 새로운 문제를 만들 때도 같은 구조의 `Quiz` 객체를 재사용하면 되므로 코드 중복을 줄이고 유지보수성을 높일 수 있습니다.
+
+
+## 🛡️ 데이터 백업 및 복구
+
+이 프로젝트는 퀴즈 데이터와 기록 데이터를 JSON 파일로 저장합니다.  
+데이터 저장 중 문제가 발생하거나 JSON 파일이 손상되는 상황에 대비하기 위해 저장 전 기존 파일을 백업합니다.
+
+`state.json`을 저장하기 전 기존 파일이 정상 JSON 형식이면 `state.json.bak` 파일로 백업합니다.  
+이후 프로그램 실행 시 `state.json`이 손상되어 읽을 수 없는 경우, `state.json.bak` 파일을 읽어 자동 복구를 시도합니다.
+
+`history.json`도 동일하게 저장 전 기존 파일이 정상 JSON 형식이면 `history.json.bak` 파일로 백업합니다.  
+이후 프로그램 실행 시 `history.json`이 손상되어 읽을 수 없는 경우, `history.json.bak` 파일을 읽어 자동 복구를 시도합니다.
+
+자동 복구에 실패하거나 백업 파일이 없는 경우에는 기본 초기 데이터로 새로 시작합니다.
+
+### 수동 복구 방법
+
+자동 복구가 되지 않는 경우 백업 파일을 원본 파일로 복사하여 수동 복구할 수 있습니다.
+
+#### state.json/history 복구
+
+리눅스 명령어
+
+```bash
+cp state.json.bak state.json
+cp history.json.bak history.json
+```
+
+Windows 명령어
+
+```powershell
+cp state.json.bak state.json
+cp history.json.bak history.json
+```
+
+
