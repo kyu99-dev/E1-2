@@ -12,13 +12,18 @@
 | 4 | [실행 방법](#️-실행-방법) | `main.py`를 이용한 프로그램 실행 방법 |
 | 5 | [기능 목록](#-기능-목록) | 기본 기능과 보너스 기능 정리 |
 | 6 | [파일 구조](#-파일-구조) | `main.py`와 `game` 패키지 구성 |
-| 7 | [데이터 파일 설명](#️-데이터-파일-설명) | `state.json`, `history.json`의 역할과 저장 구조 |
-| 8 | [실행 화면](#-실행-화면) | 로고, 메뉴, 퀴즈 실행 화면 캡처 |
-| 9 | [보너스 과제 구현 내용](#-보너스-과제-구현-내용) | 랜덤 출제, 문제 수 선택, 힌트, 삭제, 점수 히스토리 |
-| 10 | [GitHub 저장소 URL](#-github-저장소-url) | 프로젝트 원격 저장소 주소 |
-| 11 | [Git 커밋 기록](#-git-커밋-기록) | `git log`를 통한 커밋 내역 확인 |
-| 12 | [Git 저장소 복제 및 pull 실습](#git-저장소-복제-및-pull-실습) | `git clone`, `git pull` 실습 과정 |
-| 13 | [Git 기초 명령어 사용 증빙](#️-git-기초-명령어-사용-증빙) | Git 기초 명령어 7종 사용 기록 |
+| 7 | [Quiz 클래스 설계 이유](#-quiz-클래스-설계-이유) | 퀴즈 데이터를 클래스로 관리한 이유 |
+| 8 | [변경 시 수정 대상 안내](#-변경-시-수정-대상-안내) | 기능 변경 시 수정해야 할 클래스, 메서드, 저장 로직 안내 |
+| 9 | [데이터 파일 설명](#️-데이터-파일-설명) | `state.json`, `history.json`의 역할과 저장 구조 |
+| 10 | [실행 화면](#-실행-화면) | 로고, 메뉴, 퀴즈 실행 화면 캡처 |
+| 11 | [보너스 과제 구현 내용](#-보너스-과제-구현-내용) | 랜덤 출제, 문제 수 선택, 힌트, 삭제, 점수 히스토리 |
+| 12 | [프로그램 종료 시 데이터 동기화 방식](#-프로그램-종료-시-데이터-동기화-방식) | 종료 및 예외 상황에서의 데이터 저장 방식 |
+| 13 | [데이터 백업 및 복구](#️-데이터-백업-및-복구) | JSON 파일 손상 대비 백업 및 복구 방식 |
+| 14 | [대량 데이터 성능 테스트](#-대량-데이터-성능-테스트) | 1000개 이상 문제 데이터 테스트 결과와 성능 분석 |
+| 15 | [GitHub 저장소 URL](#-github-저장소-url) | 프로젝트 원격 저장소 주소 |
+| 16 | [Git 커밋 기록](#-git-커밋-기록) | `git log`를 통한 커밋 내역 확인 |
+| 17 | [Git 기초 명령어 사용 증빙](#️-git-기초-명령어-사용-증빙) | Git 기초 명령어 7종 사용 기록 |
+| 18 | [Git 저장소 복제 및 pull 실습](#git-저장소-복제-및-pull-실습) | `git clone`, `git pull` 실습 과정 |
 
 ## 📌 프로젝트 개요
 
@@ -87,6 +92,33 @@ python3 main.py
     ├── quiz.py        # Quiz 클래스
     └── quizgame.py    # QuizGame 클래스 (핵심 로직)
 ```
+
+
+## 🧩 Quiz 클래스 설계 이유
+
+이 프로젝트는 퀴즈 한 문제를 `Quiz` 클래스로 추상화했습니다. 퀴즈는 문제, 선택지, 정답처럼 서로 관련된 데이터를 함께 가지므로, 이를 하나의 객체로 묶어 관리하면 데이터 구조가 명확해집니다.
+
+또한 정답 확인, 문제 출력과 같은 기능을 클래스 내부 메서드로 구현할 수 있어 퀴즈 관련 로직을 한곳에 모을 수 있습니다. 새로운 문제를 만들 때도 같은 구조의 `Quiz` 객체를 재사용하면 되므로 코드 중복을 줄이고 유지보수성을 높일 수 있습니다.
+
+## 🔧 변경 시 수정 대상 안내
+
+프로젝트 기능 변경 시 예상되는 수정 대상은 다음과 같습니다.
+
+| 변경 요구사항 | 수정 대상 | 설명 |
+|---|---|---|
+| 퀴즈 데이터 구조 변경 | `Quiz` 클래스 | 문제, 정답, 힌트 등 퀴즈가 가지는 데이터 항목을 수정한다. |
+| 퀴즈 추가 기능 변경 | `add_quiz()` 메서드 | 사용자가 새로운 퀴즈를 추가하는 로직을 수정한다. |
+| 퀴즈 삭제 기능 변경 | `delete_quiz()` 메서드 | 저장된 퀴즈를 삭제하는 로직을 수정한다. |
+| 퀴즈 목록 출력 방식 변경 | `show_quiz_list()` 또는 목록 출력 메서드 | 퀴즈 목록을 화면에 보여주는 방식을 수정한다. |
+| 퀴즈 풀이 방식 변경 | `play_quiz()` 메서드 | 문제 출제, 정답 확인, 점수 계산 로직을 수정한다. |
+| 랜덤 출제 방식 변경 | `play_quiz()` 또는 랜덤 출제 관련 메서드 | 퀴즈를 무작위로 출제하는 방식을 수정한다. |
+| 힌트 기능 변경 | `show_hint()` 또는 힌트 관련 메서드 | 힌트 출력 조건이나 내용을 수정한다. |
+| 최고 점수 저장/갱신 변경 | `update_best_score()` 메서드 | 최고 점수를 비교하고 갱신하는 로직을 수정한다. |
+| 데이터 저장 방식 변경 | `save_data()` 메서드 | 퀴즈 데이터나 점수 데이터를 파일에 저장하는 방식을 수정한다. |
+| 데이터 불러오기 방식 변경 | `load_data()` 메서드 | 파일에서 퀴즈 데이터나 점수 데이터를 불러오는 방식을 수정한다. |
+| 파일 없음/손상 예외 처리 변경 | 파일 읽기 예외 처리 로직 | 데이터 파일이 없거나 손상되었을 때의 처리 방식을 수정한다. |
+| 전체 게임 흐름 변경 | `QuizGame` 클래스 | 메뉴 실행, 기능 호출 순서 등 전체 프로그램 흐름을 수정한다. |
+
 
 ## 🗂️ 데이터 파일 설명
 ### 1. state.json
@@ -278,169 +310,6 @@ class Quiz:
 이 기준을 사용하면 사용자가 선택한 문제 수가 달라도 더 공정하게 최고 점수를 비교할 수 있습니다.
 
 
-
-## 💾 GitHub 저장소 URL
-
-`https://github.com/kyu99-dev/E1-2`
-
-## 🧾 Git 커밋 기록 텍스트 증빙
-
-아래는 `git log --oneline` 명령어로 확인한 커밋 기록입니다.  
-프로젝트 진행 과정에서 10개 이상의 의미 있는 커밋을 남겼습니다.
-
-```text
-git log --oneline
-d06590d (HEAD -> main, origin/main, origin/HEAD) docs: README 성능 테스트 내용추가
-42774f5 Fix: 파일 읽기 예외처리 수정
-95217d2 chore: 누락된 파일 재업로드
-ba71207 feat : README 작성& 보너스과제
-83e84ca feat: 퀴즈삭제기능추가
-48ac412 feat: 힌트기능추가
-2e1660f feat: 문제 수 선택 기능추가
-876f642 feat: 랜덤 출제 기능
-7b79bc2 docs: git 명령어 사용 증빙 추가
-a275fff docs: README 정리
-e3afa59 docs: clone 실습 문구 추가
-7baed6a docs: README 작성
-7c8a634 feat: 파일 없음·손상 시 예외 처리 추가
-8200a91 QuizGame 클래스 구조로 리팩터링
-6592fba feat: 최고 저수 저장,갱신,출력 기능 추가
-ba323c6 style: 퀴즈 목록은 문제만 출력하도록 변경
-afc4535 feat:퀴즈 목록 기능구현
-794382a feat:퀴즈 추가 기능
-8456046 (feature/quiz-play) feat: 퀴즈 풀기 기능 구현
-4227ca2 feat: 기본 퀴즈 데이터 작성
-4631c98 feat: Quiz 클래스 추가
-28a6334 feat: 메뉴 기능 구현
-5d1495f Init: 프로젝트 초기 설정 및 README, .gitignore, main.py 추가
-835b5ac Initial commit
-```
-### 메시지 형식
-
-```text
-타입: 변경 내용
-```
-
-| 타입 | 의미 |
-|---|---|
-| feat | 새로운 기능 추가 |
-| fix | 버그 수정 |
-| docs | 문서 수정 |
-| style | 코드 스타일 수정 |
-| refactor | 코드 구조 개선 |
-| chore | 기타 설정 및 파일 정리 |
-
-#### 예시
-
-```text
-feat: 퀴즈 삭제 기능 추가
-fix: 파일 읽기 예외 처리 수정
-docs: README 성능 테스트 내용 추가
-style: 퀴즈 목록 출력 형식 정리
-refactor: QuizGame 클래스 구조 개선
-chore: 누락된 파일 재업로드
-```
-
-
-
-## 🧾 Git 커밋 기록
-
-```bash
-git log --oneline --graph
-```
-![git_log](docs/screenshots/git-log.png)
-
-
-## 📍Git 저장소 복제 및 pull 실습
-
-퀴즈 게임 개발 완료 후, `clone`과 `pull` 명령어를 실습하였다.
-
-### 1. 저장소 복제
-
-원격 저장소를 별도의 로컬 디렉터리에 복제하였다.
-
-```bash
-git clone git@github.com:kyu99-dev/E1-2.git
-```
-
-실행 결과:
-
-```text
-Cloning into 'E1-2'... 
-remote: Enumerating objects: 59, done.
-remote: Counting objects: 100% (59/59), done.
-remote: Compressing objects: 100% (41/41), done.
-remote: Total 59 (delta 24), reused 48 (delta 16), pack-reused 0 (from 0)
-Receiving objects: 100% (59/59), 461.54 KiB | 816.00 KiB/s, done.
-Resolving deltas: 100% (24/24), done.
-```
-
-### 2. 복제된 저장소에서 변경 후 push
-
-복제된 저장소에서 README.md에 git clone 로그를 추가한 뒤 commit 후 push하였다.
-
-```bash
-git add .
-git commit -m "docs: clone 실습 문구 추가"
-git push
-```
-
-### 3. 기존 로컬 작업 디렉터리에서 pull
-
-기존 로컬 작업 디렉터리에서 원격 저장소의 변경사항을 가져왔다.
-
-```bash
-git pull
-```
-
-실행 결과:
-
-```text
-Updating 7baed6a..e3afa59
-Fast-forward
- README.md | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
-```
-
-### 4. 실습 결과
-
-`git pull` 실행 결과 변경사항이 정상 반영되었다.  
-이를 통해 clone한 저장소에서 push한 README.md 변경사항이 기존 로컬 작업 디렉터리에 성공적으로 적용되었음을 확인하였다.
-
-## 🛠️ Git 기초 명령어 사용 증빙
-
-프로젝트 진행 과정에서 Git 기초 명령어 7종을 각각 한 번 이상 사용하였다.
-
-| 명령어 | 사용 내용 | 증빙 |
-|---|---|---|
-| `git init` | 프로젝트 폴더를 Git 저장소로 초기화 | 초기 커밋 및 Git 저장소 생성 |
-| `git add` | 변경 파일을 스테이징 영역에 추가 | 여러 커밋 생성 과정에서 사용 |
-| `git commit` | 변경 사항을 커밋으로 저장 | `git log --oneline --graph` 결과 |
-| `git push` | 로컬 커밋을 GitHub 원격 저장소에 업로드 | `origin/main`이 `HEAD -> main`과 동일 |
-| `git pull` | 원격 저장소 변경 사항을 로컬에 반영 | Fast-forward 실행 결과 기록 |
-| `git checkout` | 브랜치 이동 및 작업 브랜치 사용 | `feature/quiz-play` 브랜치에서 `main` 브랜치로 이동한 기록 |
-| `git clone` | 원격 저장소를 별도 폴더에 복제 | clone 실행 결과 기록 |
-
-### git checkout 실행 결과
----
-```bash
-git branch
-```
-```text
-* feature/quiz-play
-  main
-```
----
-```bash
-git checkout main
-```
-
-```text
-Switched to branch 'main'
-Your branch is up to date with 'origin/main'.
-```
-
-
 ## 🔄 프로그램 종료 시 데이터 동기화 방식
 
 이 프로젝트는 퀴즈 추가, 퀴즈 삭제, 점수 기록 변경이 발생하면 즉시 JSON 파일에 데이터를 저장하도록 구현했습니다.
@@ -457,13 +326,6 @@ Your branch is up to date with 'origin/main'.
 정상 종료 또는 예외 종료가 발생하더라도, 퀴즈 목록과 점수 기록은 변경 시점마다 즉시 저장되므로 데이터 손실을 줄일 수 있습니다.
 
 또한 `KeyboardInterrupt`, `EOFError` 발생 시에는 예외를 처리하여 사용자에게 종료 메시지를 출력하고 프로그램을 안전하게 종료합니다.
-
-## 🧩 Quiz 클래스 설계 이유
-
-이 프로젝트는 퀴즈 한 문제를 `Quiz` 클래스로 추상화했습니다. 퀴즈는 문제, 선택지, 정답처럼 서로 관련된 데이터를 함께 가지므로, 이를 하나의 객체로 묶어 관리하면 데이터 구조가 명확해집니다.
-
-또한 정답 확인, 문제 출력과 같은 기능을 클래스 내부 메서드로 구현할 수 있어 퀴즈 관련 로직을 한곳에 모을 수 있습니다. 새로운 문제를 만들 때도 같은 구조의 `Quiz` 객체를 재사용하면 되므로 코드 중복을 줄이고 유지보수성을 높일 수 있습니다.
-
 
 ## 🛡️ 데이터 백업 및 복구
 
@@ -499,7 +361,8 @@ cp history.json.bak history.json
 ```
 
 
-## 대량 데이터 성능 테스트
+
+## 🚀 대량 데이터 성능 테스트
 
 ### 테스트 목적
 
@@ -572,3 +435,178 @@ cp history.json.bak history.json
 현재 구조는 1000개 수준의 데이터에서는 큰 문제가 없었지만, 데이터가 더 증가할 경우 전체 데이터 로딩, 전체 목록 조회, 순차 검색 방식에서 성능 저하가 발생할 수 있다.
 
 따라서 향후 더 많은 데이터를 운영할 경우 데이터베이스 도입, 고유 ID 기반 관리, 인덱스 적용, 페이지 단위 조회 방식으로 개선할 계획이다.
+
+
+
+## 💾 GitHub 저장소 URL
+
+`https://github.com/kyu99-dev/E1-2`
+
+## 🧾 Git 커밋 기록
+
+
+프로젝트 진행 과정에서 10개 이상의 의미 있는 커밋을 남겼으며,  
+커밋 메시지는 변경 목적을 쉽게 파악할 수 있도록 아래 형식을 사용했습니다.
+
+### 커밋 메시지 형식
+
+```text
+타입: 변경 내용
+```
+
+| 타입 | 의미 |
+|---|---|
+| feat | 새로운 기능 추가 |
+| fix | 버그 수정 |
+| docs | 문서 수정 |
+| style | 코드 스타일 수정 |
+| refactor | 코드 구조 개선 |
+| chore | 기타 설정 및 파일 정리 |
+
+#### 커밋 메시지 예시
+
+```text
+feat: 퀴즈 삭제 기능 추가
+fix: 파일 읽기 예외 처리 수정
+docs: README 성능 테스트 내용 추가
+style: 퀴즈 목록 출력 형식 정리
+refactor: QuizGame 클래스 구조 개선
+chore: 누락된 파일 재업로드
+```
+
+### git log 확인 결과
+
+아래는 `git log --oneline` 명령어로 확인한 커밋 기록입니다.
+
+```bash
+git log --oneline
+```
+
+```text
+d06590d (HEAD -> main, origin/main, origin/HEAD) docs: README 성능 테스트 내용추가
+42774f5 Fix: 파일 읽기 예외처리 수정
+95217d2 chore: 누락된 파일 재업로드
+ba71207 feat : README 작성& 보너스과제
+83e84ca feat: 퀴즈삭제기능추가
+48ac412 feat: 힌트기능추가
+2e1660f feat: 문제 수 선택 기능추가
+876f642 feat: 랜덤 출제 기능
+7b79bc2 docs: git 명령어 사용 증빙 추가
+a275fff docs: README 정리
+e3afa59 docs: clone 실습 문구 추가
+7baed6a docs: README 작성
+7c8a634 feat: 파일 없음·손상 시 예외 처리 추가
+8200a91 QuizGame 클래스 구조로 리팩터링
+6592fba feat: 최고 저수 저장,갱신,출력 기능 추가
+ba323c6 style: 퀴즈 목록은 문제만 출력하도록 변경
+afc4535 feat:퀴즈 목록 기능구현
+794382a feat:퀴즈 추가 기능
+8456046 (feature/quiz-play) feat: 퀴즈 풀기 기능 구현
+4227ca2 feat: 기본 퀴즈 데이터 작성
+4631c98 feat: Quiz 클래스 추가
+28a6334 feat: 메뉴 기능 구현
+5d1495f Init: 프로젝트 초기 설정 및 README, .gitignore, main.py 추가
+835b5ac Initial commit
+```
+
+```bash
+git log --oneline --graph
+```
+![git_log](docs/screenshots/git-log.png)
+
+## 🛠️ Git 기초 명령어 사용 증빙
+
+프로젝트 진행 과정에서 Git 기초 명령어 7종을 각각 한 번 이상 사용하였다.
+
+| 명령어 | 사용 내용 | 증빙 |
+|---|---|---|
+| `git init` | 프로젝트 폴더를 Git 저장소로 초기화 | 초기 커밋 및 Git 저장소 생성 |
+| `git add` | 변경 파일을 스테이징 영역에 추가 | 여러 커밋 생성 과정에서 사용 |
+| `git commit` | 변경 사항을 커밋으로 저장 | `git log --oneline --graph` 결과 |
+| `git push` | 로컬 커밋을 GitHub 원격 저장소에 업로드 | `origin/main`이 `HEAD -> main`과 동일 |
+| `git pull` | 원격 저장소 변경 사항을 로컬에 반영 | Fast-forward 실행 결과 기록 |
+| `git checkout` | 브랜치 이동 및 작업 브랜치 사용 | `feature/quiz-play` 브랜치에서 `main` 브랜치로 이동한 기록 |
+| `git clone` | 원격 저장소를 별도 폴더에 복제 | clone 실행 결과 기록 |
+
+### git checkout 실행 결과
+---
+```bash
+git branch
+```
+```text
+* feature/quiz-play
+  main
+```
+---
+```bash
+git checkout main
+```
+
+```text
+Switched to branch 'main'
+Your branch is up to date with 'origin/main'.
+```
+
+## 📍Git 저장소 복제 및 pull 실습
+
+퀴즈 게임 개발 완료 후, `clone`과 `pull` 명령어를 실습하였다.
+
+### 1. 저장소 복제
+
+원격 저장소를 별도의 로컬 디렉터리에 복제하였다.
+
+```bash
+git clone git@github.com:kyu99-dev/E1-2.git
+```
+
+실행 결과:
+
+```text
+Cloning into 'E1-2'... 
+remote: Enumerating objects: 59, done.
+remote: Counting objects: 100% (59/59), done.
+remote: Compressing objects: 100% (41/41), done.
+remote: Total 59 (delta 24), reused 48 (delta 16), pack-reused 0 (from 0)
+Receiving objects: 100% (59/59), 461.54 KiB | 816.00 KiB/s, done.
+Resolving deltas: 100% (24/24), done.
+```
+
+### 2. 복제된 저장소에서 변경 후 push
+
+복제된 저장소에서 README.md에 git clone 로그를 추가한 뒤 commit 후 push하였다.
+
+```bash
+git add .
+git commit -m "docs: clone 실습 문구 추가"
+git push
+```
+
+### 3. 기존 로컬 작업 디렉터리에서 pull
+
+기존 로컬 작업 디렉터리에서 원격 저장소의 변경사항을 가져왔다.
+
+```bash
+git pull
+```
+
+실행 결과:
+
+```text
+Updating 7baed6a..e3afa59
+Fast-forward
+ README.md | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+```
+
+### 4. 실습 결과
+
+`git pull` 실행 결과 변경사항이 정상 반영되었다.  
+이를 통해 clone한 저장소에서 push한 README.md 변경사항이 기존 로컬 작업 디렉터리에 성공적으로 적용되었음을 확인하였다.
+
+
+
+
+
+
+
+
