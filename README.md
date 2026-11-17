@@ -290,7 +290,9 @@ class Quiz:
 
 ```text
 git log --oneline
-95217d2 (HEAD -> main, origin/main, origin/HEAD) chore: 누락된 파일 재업로드
+d06590d (HEAD -> main, origin/main, origin/HEAD) docs: README 성능 테스트 내용추가
+42774f5 Fix: 파일 읽기 예외처리 수정
+95217d2 chore: 누락된 파일 재업로드
 ba71207 feat : README 작성& 보너스과제
 83e84ca feat: 퀴즈삭제기능추가
 48ac412 feat: 힌트기능추가
@@ -313,6 +315,32 @@ afc4535 feat:퀴즈 목록 기능구현
 5d1495f Init: 프로젝트 초기 설정 및 README, .gitignore, main.py 추가
 835b5ac Initial commit
 ```
+### 메시지 형식
+
+```text
+타입: 변경 내용
+```
+
+| 타입 | 의미 |
+|---|---|
+| feat | 새로운 기능 추가 |
+| fix | 버그 수정 |
+| docs | 문서 수정 |
+| style | 코드 스타일 수정 |
+| refactor | 코드 구조 개선 |
+| chore | 기타 설정 및 파일 정리 |
+
+#### 예시
+
+```text
+feat: 퀴즈 삭제 기능 추가
+fix: 파일 읽기 예외 처리 수정
+docs: README 성능 테스트 내용 추가
+style: 퀴즈 목록 출력 형식 정리
+refactor: QuizGame 클래스 구조 개선
+chore: 누락된 파일 재업로드
+```
+
 
 
 ## 🧾 Git 커밋 기록
